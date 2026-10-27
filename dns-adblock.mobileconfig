@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PayloadContent</key>
+	<array>
+		<dict>
+			<key>DNSSettings</key>
+			<dict>
+				<key>DNSProtocol</key>
+				<string>HTTPS</string>
+				<key>ServerURL</key>
+				<string>https://dns.adguard-dns.com/dns-query</string>
+				<key>ServerAddresses</key>
+				<array>
+					<string>94.140.14.14</string>
+					<string>94.140.15.15</string>
+					<string>2a10:50c0::ad1:ff</string>
+					<string>2a10:50c0::ad2:ff</string>
+				</array>
+			</dict>
+			<key>OnDemandRules</key>
+			<array>
+				<dict>
+					<key>Action</key>
+					<string>Connect</string>
+				</dict>
+			</array>
+			<key>PayloadDescription</key>
+			<string>DNS-over-HTTPS chan quang cao va tracker. Powered by AdGuard Public DNS. Khong Root CA, khong SSL interception.</string>
+			<key>PayloadDisplayName</key>
+			<string>AdGuard DNS - Chan Quang Cao</string>
+			<key>PayloadIdentifier</key>
+			<string>com.adguard.dns.doh-settings.7a3b1c4d</string>
+			<key>PayloadType</key>
+			<string>com.apple.dnsSettings.managed</string>
+			<key>PayloadUUID</key>
+			<string>7A3B1C4D-E5F6-4890-ABCD-EF1234567890</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+		</dict>
+	</array>
+	<key>PayloadDescription</key>
+	<string>Chan quang cao, tracker va ma doc tren toan bo thiet bi bang DNS-over-HTTPS. An toan, khong Root CA, khong MITM.</string>
+	<key>PayloadDisplayName</key>
+	<string>DNS Ad Blocker - Chan Quang Cao</string>
+	<key>PayloadIdentifier</key>
+	<string>com.adguard.dns.profile.8b4c2d5e</string>
+	<key>PayloadOrganization</key>
+	<string>AdGuard DNS</string>
+	<key>PayloadRemovalDisallowed</key>
+	<false/>
+	<key>PayloadType</key>
+	<string>Configuration</string>
+	<key>PayloadUUID</key>
+	<string>8B4C2D5E-F6A7-4901-BCDE-F12345678901</string>
+	<key>PayloadVersion</key>
+	<integer>1</integer>
+	<key>ConsentText</key>
+	<dict>
+		<key>default</key>
+		<string>Profile nay chi cau hinh DNS-over-HTTPS de chan quang cao. Khong cai Root CA, khong SSL interception, khong thu thap du lieu ca nhan. Ban co the go bo bat cu luc nao.</string>
+	</dict>
+</dict>
+</plist>

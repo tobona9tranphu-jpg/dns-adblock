@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNS Ad Blocker - Chặn Quảng Cáo</title>
+    <meta name="description" content="Chặn quảng cáo, tracker trên iPhone/iPad bằng DNS-over-HTTPS. Miễn phí, an toàn, không Root CA.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #0a0a14;
+            --surface: rgba(255,255,255,0.04);
+            --border: rgba(255,255,255,0.08);
+            --text: #e0e0e8;
+            --muted: #8888a0;
+            --accent: #00d4aa;
+            --accent2: #5378ff;
+            --danger: #ff6b6b;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Hero */
+        .hero {
+            background: linear-gradient(160deg, #0d1025 0%, #131640 40%, #0a1a3a 100%);
+            padding: 80px 20px 70px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: -50%;
+            background:
+                radial-gradient(ellipse at 30% 40%, rgba(0,212,170,0.07) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 60%, rgba(83,120,255,0.07) 0%, transparent 60%);
+            animation: drift 10s ease-in-out infinite alternate;
+        }
+        @keyframes drift { to { transform: scale(1.08) translateY(-2%); } }
+
+        .hero-inner { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; }
+        .shield { font-size: 80px; display: block; margin-bottom: 16px; filter: drop-shadow(0 0 30px rgba(0,212,170,0.3)); }
+
+        h1 {
+            font-size: clamp(1.8rem, 5vw, 2.8rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 14px;
+        }
+        .hero p { font-size: 1.1rem; color: var(--muted); max-width: 540px; margin: 0 auto 36px; }
+
+        /* Download Button */
+        .dl-btn {
+            display: inline-flex; align-items: center; gap: 12px;
+            background: linear-gradient(135deg, var(--accent), #00b894);
+            color: #0a0a14; text-decoration: none;
+            padding: 17px 44px; border-radius: 60px;
+            font-size: 1.15rem; font-weight: 700;
+            box-shadow: 0 4px 28px rgba(0,212,170,0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .dl-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 40px rgba(0,212,170,0.45); }
+        .dl-btn:active { transform: translateY(0); }
+
+        .badge-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 24px; }
+        .badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 7px 16px;
+            background: rgba(0,212,170,0.08); border: 1px solid rgba(0,212,170,0.2);
+            border-radius: 30px; font-size: 0.82rem; color: var(--accent);
+        }
+
+        /* Sections */
+        .container { max-width: 880px; margin: 0 auto; padding: 0 20px; }
+        section { padding: 64px 0; }
+        section + section { border-top: 1px solid var(--border); }
+        h2 { font-size: 1.6rem; margin-bottom: 10px; color: #fff; }
+        .section-sub { color: var(--muted); margin-bottom: 28px; }
+
+        /* Feature Grid */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+        .card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 16px; padding: 26px;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+        .card:hover { border-color: rgba(0,212,170,0.25); transform: translateY(-2px); }
+        .card .ico { font-size: 2rem; margin-bottom: 10px; display: block; }
+        .card h3 { font-size: 1.05rem; color: var(--accent); margin-bottom: 6px; }
+        .card p { color: var(--muted); font-size: 0.92rem; }
+
+        /* Steps */
+        .steps { counter-reset: s; }
+        .step { display: flex; gap: 18px; margin-bottom: 26px; }
+        .step-n {
+            flex-shrink: 0; width: 42px; height: 42px;
+            background: linear-gradient(135deg, var(--accent2), var(--accent));
+            border-radius: 50%; display: grid; place-items: center;
+            font-weight: 700; color: #fff; font-size: 1.05rem;
+        }
+        .step-body h3 { color: var(--accent); margin-bottom: 4px; font-size: 1rem; }
+        .step-body p { color: var(--muted); font-size: 0.95rem; }
+
+        /* Info boxes */
+        .info-box {
+            border-radius: 12px; padding: 20px 24px; margin-top: 20px;
+        }
+        .info-box.warn { background: rgba(255,193,7,0.06); border: 1px solid rgba(255,193,7,0.15); }
+        .info-box.warn h3 { color: #ffc107; }
+        .info-box.safe { background: rgba(0,212,170,0.05); border: 1px solid rgba(0,212,170,0.15); }
+        .info-box.safe h3 { color: var(--accent); }
+        .info-box p, .info-box li { color: var(--muted); }
+
+        /* Blocklists */
+        .bl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-top: 18px; }
+        .bl-item {
+            background: rgba(83,120,255,0.06); border: 1px solid rgba(83,120,255,0.12);
+            border-radius: 12px; padding: 16px;
+        }
+        .bl-item h4 { color: var(--accent2); font-size: 0.92rem; margin-bottom: 4px; }
+        .bl-item p { color: #7878a0; font-size: 0.82rem; }
+
+        /* Security checklist */
+        .check-list { list-style: none; padding: 0; margin-top: 16px; }
+        .check-list li {
+            padding: 10px 0; border-bottom: 1px solid var(--border);
+            display: flex; gap: 10px; align-items: flex-start;
+        }
+        .check-list li:last-child { border: none; }
+        .check-list .mark { color: var(--accent); font-size: 1.2rem; flex-shrink: 0; }
+
+        /* Remove section */
+        .rm-box { background: var(--surface); border-radius: 12px; padding: 24px; margin-top: 16px; }
+        .rm-box h3 { color: var(--accent); margin-bottom: 10px; font-size: 1rem; }
+        .rm-box ol { padding-left: 20px; color: var(--muted); }
+        .rm-box li { margin-bottom: 6px; }
+
+        code {
+            background: rgba(83,120,255,0.12); padding: 2px 8px;
+            border-radius: 4px; font-size: 0.88em; color: #8ea4ff;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center; padding: 40px 20px;
+            border-top: 1px solid var(--border); color: #505068; font-size: 0.82rem;
+        }
+        footer p { margin-bottom: 6px; }
+        footer a { color: var(--accent); text-decoration: none; }
+
+        @media (max-width: 600px) {
+            .hero { padding: 50px 16px 44px; }
+            section { padding: 44px 0; }
+            .grid, .bl-grid { grid-template-columns: 1fr; }
+            .badge-row { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="hero-inner">
+            <span class="shield">🛡️</span>
+            <h1>DNS Ad Blocker<br>Chặn Quảng Cáo &amp; Tracker</h1>
+            <p>Chặn quảng cáo, tracker và mã độc trên toàn bộ thiết bị iOS/macOS bằng DNS-over-HTTPS. Không cần cài app, an toàn tuyệt đối.</p>
+            <a href="dns-adblock.mobileconfig" class="dl-btn">
+                <span>⬇️</span> Tải Profile DNS
+            </a>
+            <div class="badge-row">
+                <span class="badge">✅ Không Root CA</span>
+                <span class="badge">🔒 Không SSL Interception</span>
+                <span class="badge">🚀 Miễn phí vĩnh viễn</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- What it does -->
+        <section>
+            <h2>🚀 Profile này làm gì?</h2>
+            <p class="section-sub">Cấu hình DNS-over-HTTPS cho thiết bị Apple — mã hóa truy vấn DNS và chặn quảng cáo ở tầng hệ thống.</p>
+            <div class="grid">
+                <div class="card">
+                    <span class="ico">🚫</span>
+                    <h3>Chặn Quảng Cáo</h3>
+                    <p>Loại bỏ quảng cáo trong trình duyệt, app và game. Hoạt động trên toàn hệ thống.</p>
+                </div>
+                <div class="card">
+                    <span class="ico">🔒</span>
+                    <h3>Mã Hóa DNS</h3>
+                    <p>DNS-over-HTTPS mã hóa mọi truy vấn, ngăn nhà mạng theo dõi lịch sử duyệt web.</p>
+                </div>
+                <div class="card">
+                    <span class="ico">⚡</span>
+                    <h3>Nhanh &amp; Nhẹ</h3>
+                    <p>Không cần cài app, không tốn pin, không làm chậm thiết bị. Chạy ở tầng OS.</p>
+                </div>
+                <div class="card">
+                    <span class="ico">🌍</span>
+                    <h3>AdGuard DNS</h3>
+                    <p>Sử dụng server AdGuard Public DNS — miễn phí, nhanh, chặn 1 triệu+ domain quảng cáo.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Installation -->
+        <section>
+            <h2>📋 Hướng Dẫn Cài Đặt</h2>
+            <p class="section-sub">Chỉ 4 bước đơn giản, hoàn thành trong 1 phút.</p>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-n">1</div>
+                    <div class="step-body">
+                        <h3>Mở bằng Safari</h3>
+                        <p>Truy cập trang này bằng <strong>Safari</strong> trên iPhone/iPad. Các trình duyệt khác (Chrome, Firefox) không hỗ trợ cài profile.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-n">2</div>
+                    <div class="step-body">
+                        <h3>Tải Profile</h3>
+                        <p>Nhấn nút <strong>"⬇️ Tải Profile DNS"</strong> ở trên. Safari sẽ hỏi "Trang web này muốn tải cấu hình" → nhấn <strong>Cho phép</strong>.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-n">3</div>
+                    <div class="step-body">
+                        <h3>Cài đặt Profile</h3>
+                        <p>Mở <strong>Cài đặt (Settings)</strong> → nhấn <strong>"Đã tải về Profile"</strong> ở đầu trang → nhấn <strong>Cài đặt (Install)</strong> → nhập mật khẩu.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-n">4</div>
+                    <div class="step-body">
+                        <h3>Hoàn tất! 🎉</h3>
+                        <p>Quảng cáo bị chặn ngay lập tức. Kiểm tra tại <a href="https://adguard.com/test.html" style="color: var(--accent);">adguard.com/test.html</a></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box warn">
+                <h3>⚠️ Quan trọng</h3>
+                <p>Phải mở bằng <strong>Safari</strong>. Chrome/Firefox không cài được profile trên iOS.</p>
+            </div>
+        </section>
+
+        <!-- Security -->
+        <section>
+            <h2>🔐 Bảo Mật &amp; An Toàn</h2>
+            <p class="section-sub">Profile này được thiết kế với tiêu chí an toàn tối đa.</p>
+            <ul class="check-list">
+                <li><span class="mark">✅</span><div><strong>Không Root CA Certificate</strong> — Profile không cài bất kỳ chứng chỉ nào. Không thể đọc hoặc can thiệp HTTPS.</div></li>
+                <li><span class="mark">✅</span><div><strong>Không SSL Interception (MITM)</strong> — Kết nối SSL/TLS vẫn mã hóa end-to-end giữa bạn và website.</div></li>
+                <li><span class="mark">✅</span><div><strong>Chỉ thay đổi DNS</strong> — Không ảnh hưởng VPN, proxy, hay bất kỳ cấu hình mạng nào khác.</div></li>
+                <li><span class="mark">✅</span><div><strong>Gỡ bỏ dễ dàng</strong> — <code>PayloadRemovalDisallowed = false</code> — xóa profile bất cứ lúc nào trong Cài đặt.</div></li>
+                <li><span class="mark">✅</span><div><strong>Mã nguồn mở</strong> — Bạn có thể mở file .mobileconfig bằng text editor để kiểm tra toàn bộ nội dung.</div></li>
+            </ul>
+
+            <div class="info-box safe">
+                <h3>🛡️ So sánh: Profile này vs Profile có Root CA</h3>
+                <p style="margin-top: 8px;">Các profile "VIP/Gold/Premium" thường cài kèm Root CA — cho phép chủ server <strong>giải mã toàn bộ HTTPS</strong> của bạn (mật khẩu, ngân hàng, tin nhắn). Profile này <strong>KHÔNG</strong> làm điều đó.</p>
+            </div>
+        </section>
+
+        <!-- Blocklists -->
+        <section>
+            <h2>📃 Quảng Cáo Nào Bị Chặn?</h2>
+            <p class="section-sub">AdGuard DNS sử dụng bộ lọc tổng hợp, chặn hơn 1 triệu domain quảng cáo và tracker.</p>
+            <div class="bl-grid">
+                <div class="bl-item"><h4>Quảng cáo web</h4><p>Google Ads, Facebook Ads, banner, popup, video ads</p></div>
+                <div class="bl-item"><h4>Quảng cáo app</h4><p>Admob, Unity Ads, AppLovin, ironSource trong game/app</p></div>
+                <div class="bl-item"><h4>Tracker</h4><p>Google Analytics, Facebook Pixel, Amplitude, Mixpanel</p></div>
+                <div class="bl-item"><h4>Malware</h4><p>Domain phishing, malware, cryptojacking</p></div>
+                <div class="bl-item"><h4>Quảng cáo VN</h4><p>Admicro, CocCoc Ads, Eclick, ZaloAds</p></div>
+                <div class="bl-item"><h4>Telemetry</h4><p>Windows telemetry, Samsung analytics, Xiaomi tracking</p></div>
+            </div>
+        </section>
+
+        <!-- Remove -->
+        <section>
+            <h2>🗑️ Cách Gỡ Profile</h2>
+            <p class="section-sub">Nếu gặp vấn đề, bạn có thể gỡ profile dễ dàng.</p>
+            <div class="rm-box">
+                <h3>📱 iPhone / iPad</h3>
+                <ol>
+                    <li>Mở <strong>Cài đặt (Settings)</strong></li>
+                    <li>Vào <strong>Cài đặt chung (General)</strong> → <strong>VPN &amp; Quản lý thiết bị</strong></li>
+                    <li>Nhấn vào <strong>"DNS Ad Blocker - Chan Quang Cao"</strong></li>
+                    <li>Nhấn <strong>"Xóa Profile"</strong> → nhập mật khẩu</li>
+                </ol>
+            </div>
+            <div class="rm-box" style="margin-top: 14px;">
+                <h3>💻 macOS</h3>
+                <ol>
+                    <li>Mở <strong>System Settings</strong> → <strong>Privacy &amp; Security</strong> → <strong>Profiles</strong></li>
+                    <li>Chọn profile → nhấn nút <strong>"−"</strong> → nhập mật khẩu admin</li>
+                </ol>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p><strong>DNS Ad Blocker</strong> — Powered by <a href="https://adguard-dns.io" target="_blank">AdGuard Public DNS</a></p>
+            <p>Chỉ chứa cấu hình DNS-over-HTTPS. Không Root CA, không MITM, không thu thập dữ liệu.</p>
+            <p style="margin-top: 10px;">Mã nguồn mở — tự do sử dụng và chia sẻ.</p>
+        </div>
+    </footer>
+</body>
+</html>
